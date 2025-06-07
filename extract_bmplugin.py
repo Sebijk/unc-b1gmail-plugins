@@ -32,7 +32,7 @@ def sanitize(name: str) -> str:
 
 def main():
     p = argparse.ArgumentParser(description="Extract a B1GPLUGIN100! archive")
-    p.add_argument("infile", help="Path to the .b1g (or plugin) file")
+    p.add_argument("infile", help="Path to the .bmplugin file")
     args = p.parse_args()
 
     with open(args.infile, "rb") as f:
