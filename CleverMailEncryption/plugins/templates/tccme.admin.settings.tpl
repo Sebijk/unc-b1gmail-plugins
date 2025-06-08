@@ -1,28 +1,24 @@
-<form action="{$pageURL}&amp;sid={$sid}&amp;action=settings&amp;do=save" method="post" onsubmit="spin(this)">
-	<fieldset>
-		<legend>{lng p="common"}</legend>
-		<table>
-			<tr>
-				<td class="td1" width="200"><label for="schluessellaenge">{lng p="tccme.schluessellaenge"}:</label></td>
-				<td class="td2">
-					<select id="schluessellaenge" name="schluessellaenge">
-						<option{if $tccme_prefs.schluessellaenge == 512} selected="selected"{/if}>512</option>
-						<option{if $tccme_prefs.schluessellaenge == 768} selected="selected"{/if}>768</option>
-						<option value="1024"{if $tccme_prefs.schluessellaenge == 1024} selected="selected"{/if}>1024</option>
-						<option{if $tccme_prefs.schluessellaenge == 2048} selected="selected"{/if}>2048 ({lng p="tccme.schluessellaenge_empfohlen"})</option>
-						<option{if $tccme_prefs.schluessellaenge == 4096} selected="selected"{/if}>4096</option>
+<fieldset>
+	<legend>{lng p="common"}</legend>
+
+	<form action="{$pageURL}&amp;sid={$sid}&amp;action=settings&amp;do=save" method="post" onsubmit="spin(this)">
+	{if $erfolg}<div class="alert alert-success">{$erfolg}</div>{/if}
+
+		<div class="mb-3 row">
+			<label class="col-sm-2 col-form-label" for="schluessellaenge">{lng p="tccme.schluessellaenge"}</label>
+			<div class="col-sm-10">
+					<select id="schluessellaenge" name="schluessellaenge" class="form-select">
+						{if $tccme_prefs.schluessellaenge == 2048}<option selected="selected">2048</option>{/if}
+						<option{if $tccme_prefs.schluessellaenge == 4096} selected="selected"{/if}>4096 ({lng p="tccme.schluessellaenge_empfohlen"})</option>
+						<option{if $tccme_prefs.schluessellaenge == 8192} selected="selected"{/if}>8192</option>
 					</select>
-				</td>
-			</tr>
-			<tr>
-				<td class="td1" width="200"><label for="maxgroesse">{lng p="tccme.maxgroesse"}:</label></td>
-				<td class="td2">
-					<input type="text" id="maxgroesse" name="maxgroesse" value="{text value=$tccme_prefs.maxgroesse/1024 allowEmpty=1}" size="8" /> KiB
-				</td>
-			</tr>
-		</table>
-	</fieldset>
-	<div style="float:right;">
-		<input type="submit" class="button" value=" {lng p="save"} " />&nbsp;
-	</div>
-</form>
+				</label>
+			</div>
+		</div>
+		
+
+		<div class="text-end">
+			<input type="submit" name="save" value="{lng p="save"}" class="btn btn-primary" />
+		</div>
+	</form>
+</fieldset>

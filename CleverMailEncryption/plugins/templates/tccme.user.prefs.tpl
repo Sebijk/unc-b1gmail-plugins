@@ -1,4 +1,10 @@
-<h1><img src="plugins/templates/images/tccme_icon16.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tccme_mod2"}</h1>
+<div id="contentHeader">
+	<div class="left">
+		<i class="fa fa-lock" aria-hidden="true"></i>
+		{lng p="tccme_mod2"}
+	</div>
+</div>
+<div class="scrollContainer"><div class="pad">
 {lng p="prefs_d_tccme_mod"}
 <br /><br />
 <table class="listTable">
@@ -8,12 +14,12 @@
 	<tr>
 		<td class="listTableLeft">{lng p="tccme.status"}:</td>
 		<td class="listTableRight">
-			{if !$tccme_hasKey}
-				<img src="{$tpldir}images/li/mailico_encrypted_error.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tccme.status_key_fehlt"}
+			{if empty($tccme_hasKey)}
+				<i class="fa fa-unlock-alt" aria-hidden="true"></i> {lng p="tccme.status_key_fehlt"}
 			{elseif $tccme_mailCountPercent == 100}
-				<img src="{$tpldir}images/li/yes.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tccme.status_fertig"}
+				<i class="fa fa-check-circle" aria-hidden="true"></i> {lng p="tccme.status_fertig"}
 			{else}
-				<img src="{$tpldir}images/load_16.gif" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tccme.status_laeuft"}
+				<i class="fa fa-spinner fa-pulse fa-fw"></i> {lng p="tccme.status_laeuft"}
 			{/if}
 		</td>
 	</tr>
@@ -33,6 +39,7 @@
 		</td>
 	</tr>
 </table>
+</div></div>
 {if $tccme_mailCountPercent != 100}
 <script type="text/javascript">
 setTimeout('window.location.reload()',30000)

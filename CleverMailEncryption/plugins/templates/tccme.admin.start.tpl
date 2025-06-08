@@ -1,61 +1,79 @@
-<div id="tccme_container">
-	{if !$tccme_groupCount}
-	<fieldset>
-		<legend>{lng p="tccme.warnung"}</legend>
-		<table>
-			<tr>
-				<td align="left" valign="top" width="40"><img src="./templates/images/warning32.png" border="0" alt="" width="32" height="32" /></td>
-				<td>
-					<b>{lng p="tccme.keine_gruppe_aktiviert"}</b>
-				</td>
-			</tr>
-		</table>
-	</fieldset>
-	{/if}
-	<fieldset>
-		<legend>{lng p="overview"}</legend>
-		<table>
-			<tr>
-				<td rowspan="3" width="40" align="center" valign="top"><img src="./templates/images/ico_data.png" border="0" alt="" width="32" height="32" /></td>
-				<td class="td1" width="220">{$tccme_name}:</td>
-				<td class="td2">{$tccme_version}</td>
-			</tr>
-			<tr>
-				<td class="td1" width="220">{lng p="tccme.openssl_support"}:</td>
-				<td class="td2"><img src="./templates/images/{$tccme_opensslSupport}.png" border="0" alt="" width="16" height="16" /></td>
-			</tr>
-			<tr>
-				<td class="td1" width="220">{lng p="tccme.verschluesselte_mails"}:</td>
-				<td class="td2">{$tccme_mailCount}</td>
-			</tr>
-		</table>
-		{if $tccme_hasQueue}
-		<hr size="1" style="background-color: #ddd" />
-		<table>
-			<tr>
-				<td width="40" align="center" valign="top"><img src="./templates/images/updates.png" border="0" alt="" width="32" height="32" /></td>
-				<td>
-					{lng p="tccme.warteschlange_abarbeiten_beschreibung"}<br />
-					<input type="submit" class="button" name="optimieren" value="{lng p="tccme.warteschlange_abarbeiten"}" onclick="spin(EBID('tccme_container')); workOffQueue();" />
+<span id="tccme_container">
+<fieldset>
+	<legend>{lng p="overview"}</legend>
+
+	{if !$tccme_groupCount}<div class="alert alert-warning">{lng p="tccme.keine_gruppe_aktiviert"}</div>{/if}
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="row">
+				<label class="col-sm-4 col-form-label">{$tccme_name}</label>
+				<div class="col-sm-8">
+					<div class="form-control-plaintext">{$tccme_version}</div>
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-4 col-form-label">{lng p="tccme.openssl_support"}</label>
+				<div class="col-sm-8">
+					<div class="form-control-plaintext"><img src="./templates/images/{$tccme_opensslSupport}.png" border="0" alt="" width="16" height="16" /></div>
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-4 col-form-label">{lng p="tccme.verschluesselte_mails"}</label>
+				<div class="col-sm-8">
+					<div class="form-control-plaintext">{$tccme_mailCount}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</fieldset>
+{if $tccme_hasQueue}
+<fieldset>
+	<legend>{lng p="tccme.warteschlange_abarbeiten"}</legend>
+	<div class="mb-3 row">
+		<label class="col-sm-10 col-form-label">{lng p="tccme.warteschlange_abarbeiten_beschreibung"}</label>
+		<div class="col-sm-10">
+			<div class="form-control-plaintext">
+			<input type="submit" class="btn btn-primary" name="optimieren" value="{lng p="tccme.warteschlange_abarbeiten"}" onclick="spin(EBID('tccme_container')); workOffQueue();" />
 					<noscript><br /><small>({lng p="tccme.javascript_aktivieren"})</small></noscript>
-				</td>
-			</tr>
+			</div>
+		</div>
+	</div>
+</fieldset>
+{/if}
+</span>
+
+	</div>
+	<div class="card-footer m-0 p-0">
+		<h3 class="m-4">{lng p="notices"}</h3>
+		<table class="table table-vcenter table-striped card-table">
+			{foreach from=$notices item=notice}
+				<tr>
+					<td class="align-top text-end" style="width: 50px;">
+						{if $notice.type == 'debug'}
+							<i class="fa-solid fa-bug text-danger"></i>
+						{elseif $notice.type == 'info'}
+							<i class="fa-solid fa-circle-info text-info"></i>
+						{elseif $notice.type == 'warning'}
+							<i class="fa-solid fa-triangle-exclamation text-warning"></i>
+						{elseif $notice.type == 'error'}
+							<i class="fa-regular fa-circle-xmark text-red"></i>
+						{else}
+							<i class="fa-solid fa-puzzle-piece text-cyan"></i>
+						{/if}
+					</td>
+					<td class="align-top">{$notice.text}</td>
+					<td class="align-top" style="width: 50px;">
+						{if isset($notice.link)}
+							<a href="{$notice.link}sid={$sid}"><i class="fa-solid fa-square-arrow-up-right"></i></a>
+						{else}&nbsp;{/if}
+					</td>
+				</tr>
+			{/foreach}
 		</table>
-		{/if}
-	</fieldset>
-	<fieldset>
-		<legend>{lng p="notices"}</legend>
-		<table width="100%" id="noticeTable">
-		{foreach from=$notices item=notice}
-			<tr>
-				<td width="20" valign="top"><img src="{$tpldir}images/{$notice.type}.png" width="16" height="16" border="0" alt="" align="absmiddle" /></td>
-				<td valign="top">{$notice.text}</td>
-				<td align="right" valign="top" width="20">{if $notice.link}<a href="{$notice.link}sid={$sid}"><img src="{$tpldir}images/go.png" border="0" alt="" width="16" height="16" /></a>{else}&nbsp;{/if}</td>
-			</tr>
-		{/foreach}
-		</table>
-	</fieldset>
-</div>
+	</div>
+
+
 <center id="status_container" style="display: none"><span id="status">0</span> {lng p="tccme.mails_verarbeitet"}...</center>
 
 <script type="text/javascript">{literal}
@@ -99,4 +117,3 @@ function _workOffQueue(e)
 	}
 }
 {/literal}</script>
-<script language="javascript" src="{$updateURL}"></script>
