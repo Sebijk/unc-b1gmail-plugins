@@ -484,7 +484,7 @@ class TCMailEncryptionPlugin extends BMPlugin
 
     $users = [];
     $queues = [];
-    while (($row = $res->FetchArray(MYSQLI_ASSOC)) !== false) {
+    while ($row = $res->FetchArray(MYSQLI_ASSOC)) {
       $users[] = $row;
       $queues[] = $row['id'];
     }
@@ -514,7 +514,7 @@ class TCMailEncryptionPlugin extends BMPlugin
       $mailRes = $db->Query('SELECT * FROM {pre}mails WHERE userid = ? AND id NOT IN (SELECT mail_id FROM {pre}tccme_plugin_mail WHERE user_id = ?) LIMIT ?', $row['user_id'], $row['user_id'], $mailLimit);
       $mailCounter = 0;
 
-      while (($mail = $mailRes->FetchArray(MYSQLI_ASSOC)) !== false) {
+      while ($mail = $mailRes->FetchArray(MYSQLI_ASSOC)) {
         ++$mailCounter;
         ++$totalMailsProcessed;
         $bMail = _new('BMMail', [$mail['userid'], $mail, false, false]);
