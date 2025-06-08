@@ -12,22 +12,21 @@
  */
 class TCSpacePlugin extends BMPlugin {
 
-  function TCSpacePlugin() {
+  function __construct() {
     $this->name = 'BetterQuota';
     $this->author = 'ThinkClever GmbH';
     $this->web = 'http://www.thinkclever.ch/';
     $this->mail = 'info@thinkclever.ch';
     $this->version = '1.2.0';
-    $this->designedfor = '7.3.0';
+    $this->designedfor = '7.4.0';
     $this->type = BMPLUGIN_DEFAULT;
 
     $this->admin_pages = false;
 
     $this->website = 'http://my.b1gmail.com/details/43/';
-    $this->update_url = 'http://code.thinkclever.net/b1gmail/plugins/update/index.php/-' . md5(B1GMAIL_LICNR . md5(B1GMAIL_SIGNKEY)) . '-/';
   }
 
-  function Install() {
+  public function Install() {
     global $mysql, $db;
     $databaseStructure =
         'YToxOntzOjIyOiJ7cHJlfXRjc3BjX3BsdWdpbl91c2VyIjthOjI6e3M6NjoiZmllbGRzIjthOjQ'
@@ -56,7 +55,7 @@ class TCSpacePlugin extends BMPlugin {
     return true;
   }
 
-  function Uninstall() {
+  public function Uninstall() {
     global $db;
     $db->Query('UPDATE {pre}groupoptions SET module = ? WHERE module = ?', '_TCSpacePlugin', 'TCSpacePlugin');
     // log
@@ -64,7 +63,7 @@ class TCSpacePlugin extends BMPlugin {
     return true;
   }
 
-  function OnDeleteUser($userId) {
+  public function OnDeleteUser($userId) {
     global $db;
     $db->Query('DELETE FROM {pre}tcspc_plugin_user WHERE userid = ?', $userId);
   }
@@ -81,7 +80,7 @@ class TCSpacePlugin extends BMPlugin {
     return false;
   }
 
-  function FileHandler($file) {
+  public function FileHandler($file, $action) {
     global $thisUser, $userRow, $tpl, $bm_prefs;
     if($thisUser) {
       $active = $this->GetGroupOptionValue('tcspc_eingeschaltet');
@@ -107,7 +106,7 @@ class TCSpacePlugin extends BMPlugin {
     }
   }
 
-  function _removeWidgets($widgets) {
+  private function _removeWidgets($widgets) {
     global $thisUser, $bm_prefs, $plugins;
     $emptyWidget = array('instance' => $this, 'type' => BMPLUGIN_WIDGET);
     foreach($widgets as $widget) {
@@ -125,7 +124,7 @@ class TCSpacePlugin extends BMPlugin {
     }
   }
 
-  function OnReadLang(&$lang_user, &$lang_client, &$lang_custom, &$lang_admin, $lang) {
+  public function OnReadLang(&$lang_user, &$lang_client, &$lang_custom, &$lang_admin, $lang) {
     if (strpos($lang, 'deutsch') !== false) {
       $lang_user['tcspc_mod'] = 'Speicherplatz';
       $lang_user['tcspc_mod2'] = 'Speicherplatzeinstellungen';
@@ -159,7 +158,7 @@ class TCSpacePlugin extends BMPlugin {
       '1' => $lang_admin['tcspc_erweitert']));
   }
 
-  function UserPrefsPageHandler($action) {
+  public function UserPrefsPageHandler($action) {
     if ($action != 'tcspc_mod' || defined('TCSPC_PREFS_SHOWN') || $this->GetGroupOptionValue('tcspc_eingeschaltet') != 1) {
       return false;
     }
@@ -182,7 +181,7 @@ class TCSpacePlugin extends BMPlugin {
     if (!$res->RowCount()) {
       $spc = array(0 => false);
     } else {
-      $spc = $res->FetchArray(MYSQL_NUM);
+      $spc = $res->FetchArray(MYSQLI_NUM);
     }
     $res->Free();
     if (!$spc[0]) {
@@ -233,7 +232,7 @@ class TCSpacePlugin extends BMPlugin {
     return true;
   }
 
-  function AfterInit() {
+  public function AfterInit() {
     if (!ADMIN_MODE) {
       return;
     }
@@ -243,12 +242,12 @@ class TCSpacePlugin extends BMPlugin {
     }
   }
 
-  function _getStep($spaceTotal) {
+  public static function _getStep($spaceTotal) {
     $step = ceil($spaceTotal / 10 / 1024 / 1024) * 1024 * 1024;
     return $step;
   }
 
-  function _getUserSettings($userId) {
+  public static function _getUserSettings($userId) {
     global $db;
     $res = $db->Query('SELECT * FROM {pre}tcspc_plugin_user WHERE userid = ?', $userId);
     if (!$res->RowCount()) {
@@ -259,7 +258,7 @@ class TCSpacePlugin extends BMPlugin {
     return $spc;
   }
 
-  function _getStart($spaceTotal, $mailspaceUsed, $webdiskUsed, $step) {
+  public static function _getStart($spaceTotal, $mailspaceUsed, $webdiskUsed, $step) {
     $stop = ($spaceTotal - $webdiskUsed);
     $start = $mailspaceUsed;
     $startT = ceil($start / $step) * $step;
@@ -274,7 +273,7 @@ class TCSpacePlugin extends BMPlugin {
 }
 
 class TCSpacePlugin_Widget_Space extends BMPlugin {
-  function TCSpacePlugin_Widget_Space() {
+  function __construct() {
     $this->type = BMPLUGIN_WIDGET;
     $this->name = 'BetterQuota widget';
     $this->author = 'ThinkClever GmbH';
@@ -282,21 +281,20 @@ class TCSpacePlugin_Widget_Space extends BMPlugin {
     $this->widgetTitle = $this->name;
     $this->widgetIcon = 'tcspc_icon12.png';
     $this->version = '1.1.0';
-    $this->designedfor = '7.3.0';
+    $this->designedfor = '7.4.0';
 
     $this->website = 'http://my.b1gmail.com/details/43/';
-    $this->update_url = 'http://code.thinkclever.net/b1gmail/plugins/update/index.php/-' . md5(B1GMAIL_LICNR . md5(B1GMAIL_SIGNKEY)) . '-/';
   }
 
-  function OnReadLang($lang_user) {
+  public function OnReadLang(&$lang_user, &$lang_client, &$lang_custom, &$lang_admin, $lang) {
     $this->widgetTitle = @$lang_user['tcspc_mod'];
   }
 
-  function isWidgetSuitable($for) {
+  public function isWidgetSuitable($for) {
     return ($for == BMWIDGET_START);
   }
 
-  function renderWidget() {
+  public function renderWidget() {
     global $groupRow, $userRow, $tpl;
     $tpl->assign('tcspc_widget_used', $userRow['mailspace_used']);
     $tpl->assign('tcspc_widget_limit', $groupRow['storage']);

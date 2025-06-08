@@ -9,7 +9,7 @@ class TCSpacePlugin_BMWebdisk extends BMWebdisk {
 
         $res = $db->Query('SELECT gruppe, diskspace_used, mailspace_used FROM {pre}users WHERE id=?', $this->_userID);
         assert('$res->RowCount() != 0');
-        list ($group, $diskSpace, $mailSpace) = $res->FetchArray(MYSQL_NUM);
+        list ($group, $diskSpace, $mailSpace) = $res->FetchArray(MYSQLI_NUM);
         $res->Free();
 
         $active = $plugins->GetGroupOptionValue($group, 'TCSpacePlugin', 'tcspc_eingeschaltet', false);
