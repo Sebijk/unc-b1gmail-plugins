@@ -30,11 +30,8 @@ function checkEnginePrefs()
 				<td class="td2">
 					<select name="engine" id="id_engine" onchange="checkEnginePrefs();">
 						<option value="mysql"{if $tcbms_prefs.engine == "mysql"} selected="selected"{/if}>MySQL</option>
-						{php}if(function_exists('version_compare') && version_compare(PHP_VERSION, '5.1.4', '>=')) { {/php}
 						<option value="zsl"{if $tcbms_prefs.engine == "zsl"} selected="selected"{/if}>{lng p="tcbms.zsl"}</option>
-						{php}}{/php}
-					</select>{php}if(!function_exists('version_compare') || version_compare(PHP_VERSION, '5.1.4', '<')) { {/php}<br />
-					<small>({lng p="tcbms.zsl_nicht_verfuegbar"} {lng p="yourversion"}: {php}echo PHP_VERSION;{/php})</small>{php}}{/php}
+					</select>
 				</td>
 			</tr>
 			<tr id="id_engine_zsl_optionen" style="display: none">

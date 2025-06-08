@@ -13,13 +13,13 @@
  */
 class BetterMailSearch extends BMPlugin {
     
-    function BetterMailSearch() {
+    function __construct() {
         $this->name = 'BetterMailSearch';
         $this->author = 'ThinkClever GmbH';
         $this->web = 'http://www.thinkclever.ch/';
         $this->mail = 'info@thinkclever.ch';
         $this->version = '1.6.0';
-        $this->designedfor = '7.3.0';
+        $this->designedfor = '7.4.0';
         $this->type = BMPLUGIN_DEFAULT;
         $this->order = -10;
         
@@ -28,7 +28,6 @@ class BetterMailSearch extends BMPlugin {
         $this->admin_page_icon = 'tcbms_icon32.png';
         
         $this->website = 'http://my.b1gmail.com/details/4/';
-        $this->update_url = 'http://code.thinkclever.net/b1gmail/plugins/update/index.php/-' . md5(B1GMAIL_LICNR . md5(B1GMAIL_SIGNKEY)) . '-/';
     }
     
     function Install() {
@@ -59,7 +58,7 @@ class BetterMailSearch extends BMPlugin {
         
         // prefs row?
         $res = $db->Query('SELECT COUNT(*) FROM {pre}tcbms_plugin_settings');
-        list ($rowCount) = $res->FetchArray(MYSQL_NUM);
+        list ($rowCount) = $res->FetchArray(MYSQLI_NUM);
         $res->Free();
         
         // insert prefs row
@@ -570,7 +569,7 @@ class BetterMailSearch extends BMPlugin {
                 $cacheManager->Add('tcbms_storageUsage', $storageUsage);
         }
         $res = $db->Query('SELECT COUNT(*) FROM {pre}groupoptions WHERE `module` = ? AND `key` = \'tcbms_eingeschaltet\' AND `value` = 1 AND EXISTS (SELECT id FROM {pre}gruppen WHERE id = gruppe)', 'BetterMailSearch');
-        list($count) = $res->FetchArray(MYSQL_NUM);
+        list($count) = $res->FetchArray(MYSQLI_NUM);
         $tpl->assign('tcbms_groupCount', $count);
         $tpl->assign('tcbms_index_anzahl', $countMails);
         $tpl->assign('tcbms_index_groesse', $storageUsage);
@@ -692,7 +691,7 @@ class BetterMailSearch extends BMPlugin {
     
         if(empty($_GET['tcbms_total'])) {
           $res = $db->Query('SELECT COUNT(*)' . $qPart);
-          list ($rowCount) = $res->FetchArray(MYSQL_NUM);
+          list ($rowCount) = $res->FetchArray(MYSQLI_NUM);
           $res->Free();
         } else {
           $rowCount = $_GET['tcbms_total'];
@@ -703,7 +702,7 @@ class BetterMailSearch extends BMPlugin {
         ob_start();
         $start = time();
         $ended = false;
-        while (($mail = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+        while (($mail = $res->FetchArray(MYSQLI_ASSOC))) {
             $bMail = _new('BMMail', array($mail['userid'], $mail, false, false));
             $index->deleteMail($bMail);
             $this->_addToIndex($bMail);
@@ -758,7 +757,7 @@ class BetterMailSearch extends BMPlugin {
     var $_index = null;
     
     /**
-     * Gibt den Indexer zurück
+     * Gibt den Indexer zurÃ¼ck
      *
      * @return TCBMS_Search_Interface
      */
@@ -825,7 +824,6 @@ class BetterMailSearch_Widget_Search extends BMPlugin {
         $this->designedfor = '7.3.0';
         
         $this->website = 'http://my.b1gmail.com/details/4/';
-        $this->update_url = 'http://code.thinkclever.net/b1gmail/plugins/update/index.php/-' . md5(B1GMAIL_LICNR . md5(B1GMAIL_SIGNKEY)) . '-/';
     }
     
     function isWidgetSuitable($for) {
@@ -848,7 +846,7 @@ $plugins->registerPlugin('BetterMailSearch');
 $plugins->registerPlugin('BetterMailSearch_Widget_Search');
 
 /**
- * Das Interface (PHP4-Style) för den Zugriff auf den Index.
+ * Das Interface (PHP4-Style) fÃ¼r den Zugriff auf den Index.
  */
 class TCBMS_Search_Interface {
     function TCBMS_Search_Interface($config) {
@@ -856,7 +854,7 @@ class TCBMS_Search_Interface {
     }
     
     /**
-     * Fügt eine Mail zum Index hinzu
+     * Fï¿½gt eine Mail zum Index hinzu
      *
      * @param BMMail $mail
      */
@@ -865,7 +863,7 @@ class TCBMS_Search_Interface {
     }
     
     /**
-     * Löscht eine Mail aus dem Index
+     * LÃ¤scht eine Mail aus dem Index
      *
      * @param BMMail $mail
      */
@@ -874,7 +872,7 @@ class TCBMS_Search_Interface {
     }
     
     /**
-     * Alle Einträge die zu user $userId gehören
+     * Alle EintrÃ¤ge die zu user $userId gehÃ¶ren
      *
      * @param int $userId
      */
@@ -897,35 +895,35 @@ class TCBMS_Search_Interface {
     }
     
     /**
-     * Zählt die Index-Optimierungs-Schritte
+     * ZÃ¤hlt die Index-Optimierungs-Schritte
      */
     function countOptimize() {
         trigger_error('Missing implementation of TCBMS_Search_Interface::countOptimize', E_USER_ERROR);
     }
     
     /**
-     * Löscht den gesamten Index
+     * LÃ¶scht den gesamten Index
      */
     function delete() {
         trigger_error('Missing implementation of TCBMS_Search_Interface::delete', E_USER_ERROR);
     }
     
     /**
-     * Gibt die Anzahl Mails im Index zurück.
+     * Gibt die Anzahl Mails im Index zurÃ¼ck.
      */
     function countIndexedMails() {
         trigger_error('Missing implementation of TCBMS_Search_Interface::countIndexedFiles', E_USER_ERROR);
     }
     
     /**
-     * Gibt in Byte zurück, wie viel Speicher auf der Harddisk belegt wird.
+     * Gibt in Byte zurÃ¼ck, wie viel Speicher auf der Harddisk belegt wird.
      */
     function getStorageUsage() {
         trigger_error('Missing implementation of TCBMS_Search_Interface::getStorageUsage', E_USER_ERROR);
     }
     
     /**
-     * Sucht im Index nach Mails die zu $query passen und $user gehören.
+     * Sucht im Index nach Mails die zu $query passen und $user gehÃ¶ren.
      *
      * @param string $query Suchstring
      * @param BMUser $user User (null = egal)
@@ -953,7 +951,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     }
     
     /**
-     * Fügt eine Mail zum Index hinzu
+     * FÃ¼gt eine Mail zum Index hinzu
      *
      * @param BMMail $mail
      */
@@ -1011,7 +1009,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     function _getDbCharset() {
         global $db;
         $res = $db->Query('SHOW VARIABLES');
-        while (($table = $res->FetchArray()) !== false) {
+        while (($table = $res->FetchArray())) {
             if (strtolower(@$table['Variable_name']) == 'character_set_database') {
                 return $table['Value'];
             }
@@ -1091,7 +1089,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
       if($pcreUtf8) {
         $regex .= '\pL\s0-9';
       } else {
-        $regex .= 'a-zA-Z0-9\säÄöÖüÜàÀéÉèÈßçÇ';
+        $regex .= 'a-zA-Z0-9\sÃ¤Ã„Ã¶Ã–Ã¼ÃœÃ Ã€Ã©Ã‰Ã¨ÃˆÃŸÃ§Ã‡';
       }
       if($search && $this->_config['platzhalter_erlauben']) {
         $regex .= '%_';
@@ -1115,7 +1113,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     function _getWordId($word) {
         global $db;
         $res = $db->Query('SELECT sw_id FROM {pre}tcbms_plugin_search_word WHERE sw_word = SUBSTRING(?, 1, 32)', $word);
-        $wordId = $res->FetchArray(MYSQL_NUM);
+        $wordId = $res->FetchArray(MYSQLI_NUM);
         $res->Free();
         if ($wordId !== false) {
             $wordId = $wordId[0];
@@ -1145,7 +1143,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     }
     
     /**
-     * Löscht eine Mail aus dem Index
+     * LÃ¶scht eine Mail aus dem Index
      *
      * @param BMMail $mail
      */
@@ -1163,7 +1161,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     }
     
     /**
-     * Alle Einträge die zu user $userId gehören
+     * Alle Eintraege die zu user $userId gehoeren
      *
      * @param int $userId
      */
@@ -1196,18 +1194,18 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     }
     
     /**
-     * Zählt die Index-Optimierungs-Schritte
+     * ZÃ¤hlt die Index-Optimierungs-Schritte
      */
     function countOptimize() {
         global $db;
         $q = 'SELECT COUNT(*) FROM {pre}tcbms_plugin_search_word WHERE NOT EXISTS (SELECT `si_id` FROM {pre}tcbms_plugin_search_index WHERE `sw_id` = `si_sw_id` LIMIT 1)';
         $res = $db->Query($q);
-        $count = $res->FetchArray(MYSQL_NUM);
+        $count = $res->FetchArray(MYSQLI_NUM);
         return $count[0];
     }
     
     /**
-     * Löscht den gesamten Index
+     * LÃ¶scht den gesamten Index
      */
     function delete() {
         global $db;
@@ -1216,24 +1214,24 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     }
     
     /**
-     * Gibt die Anzahl Mails im Index zurück.
+     * Gibt die Anzahl Mails im Index zurueck.
      */
     function countIndexedMails() {
         global $db;
         $res = $db->Query('SELECT COUNT(DISTINCT si_mail_id) FROM {pre}tcbms_plugin_search_index');
-        $count = $res->FetchArray(MYSQL_NUM);
+        $count = $res->FetchArray(MYSQLI_NUM);
         $res->Free();
         return $count[0];
     }
     
     /**
-     * Gibt in Byte zurück, wie viel Speicher auf der Harddisk belegt wird.
+     * Gibt in Byte zurueck, wie viel Speicher auf der Harddisk belegt wird.
      */
     function getStorageUsage() {
         global $db, $mysql;
         $size = 0;
         $res = $db->Query('SHOW TABLE STATUS');
-        while (($table = $res->FetchArray()) !== false) {
+        while (($table = $res->FetchArray())) {
             if (substr($table['Name'], strlen($mysql['prefix']), 19) == 'tcbms_plugin_search') {
                 $size += $table['Index_length'];
             }
@@ -1314,7 +1312,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     }
     
     /**
-     * Sucht im Index nach Mails die zu $query passen und $user gehören.
+     * Sucht im Index nach Mails die zu $query passen und $user gehÃ¶ren.
      *
      * @param string $query Suchstring
      * @param BMUser $user User (null = egal)
@@ -1331,7 +1329,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
         $sql = $this->_getSql($q, $user, $filter, $sort, $spam, $dateFrom, $dateTo, $count ? 'count' : 'standard');
         $res = $db->Query($sql);
         if ($count) {
-            list ($rowCount) = $res->FetchArray(MYSQL_NUM);
+            list ($rowCount) = $res->FetchArray(MYSQLI_NUM);
             $res->Free();
             $this->_setDbCharset($this->_dbCharset);
             return $rowCount;
@@ -1340,10 +1338,10 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
         
         $sql = $this->_getSql($q, $user, $filter, $sort, $spam, $dateFrom, $dateTo, 'max');
         $res2 = $db->Query($sql);
-        list ($highestScore) = $res2->FetchArray(MYSQL_NUM);
+        list ($highestScore) = $res2->FetchArray(MYSQLI_NUM);
         $res2->Free();
         
-        while (($row = $res->FetchArray()) !== false) {
+        while ($row = $res->FetchArray()) {
             $score = $row['si_count'];
             $hit = new stdClass();
             $hit->subject = $row['subject'];
