@@ -12,13 +12,13 @@
  */
 class TCBrandPlugin extends BMPlugin {
 
-    function TCBrandPlugin() {
+    function __construct() {
         $this->name = 'CleverBranding';
         $this->author = 'ThinkClever GmbH';
         $this->web = 'http://www.thinkclever.ch/';
         $this->mail = 'info@thinkclever.ch';
         $this->version = '1.3.1';
-        $this->designedfor = '7.3.0';
+        $this->designedfor = '7.4.0';
         $this->type = BMPLUGIN_DEFAULT;
         $this->order = -10;
 
@@ -27,7 +27,6 @@ class TCBrandPlugin extends BMPlugin {
         $this->admin_page_icon = 'tcbrn_icon32.png';
 
         $this->website = 'http://my.b1gmail.com/details/85/';
-        $this->update_url = 'http://code.thinkclever.net/b1gmail/plugins/update/index.php/-' . md5(B1GMAIL_LICNR . md5(B1GMAIL_SIGNKEY)) . '-/';
     }
 
     function Install() {
@@ -53,13 +52,10 @@ class TCBrandPlugin extends BMPlugin {
       SyncDBStruct($structure);
 
       $res = $db->Query('SELECT COUNT(*) FROM {pre}tcbrn_plugin_domains');
-      list ($rowCount) = $res->FetchArray(MYSQL_NUM);
+      list ($rowCount) = $res->FetchArray(MYSQLI_NUM);
       $res->Free();
       if ($rowCount == 0) {
-        $domains = $bm_prefs['domains'];
-        if(!is_array($domains)) {
-          $domains = explode(':', $domains);
-        }
+        $domains = GetDomainList();
         $cList = array('at' => 89,
           'ch' => 105,
           'cn' => 22,
@@ -325,10 +321,7 @@ class TCBrandPlugin extends BMPlugin {
 
     function _adminDomain() {
       global $db, $tpl, $bm_prefs;
-      $domains = $bm_prefs['domains'];
-      if(!is_array($domains)) {
-        $domains = explode(':', $domains);
-      }
+      $domains = GetDomainList();
       /* @var $db DB */
       if (isset($_GET['id']) && strlen($_GET['id'])) {
         $res = $db->Query('SELECT * FROM {pre}tcbrn_plugin_domains WHERE domainid = ?', $_GET['id']);
@@ -336,7 +329,7 @@ class TCBrandPlugin extends BMPlugin {
           $res->Free();
           $this->_adminRedirect();
         }
-        $row = $res->FetchArray(MYSQL_ASSOC);
+        $row = $res->FetchArray(MYSQLI_ASSOC);
         $res->Free();
         $row['domainlist_domains'] = explode(':', $row['domainlist_domains']);
         $tpl->assign('tcbrn_data', $row);
@@ -411,8 +404,8 @@ class TCBrandPlugin extends BMPlugin {
     $tpl->assign('languages', GetAvailableLanguages());
     $tpl->assign('countries', CountryList());
 
-    $queryURL = sprintf('%s?action=getLatestVersion&internalName=%s&b1gMailVersion=%s&js=1&language=%s&version=%s', $this->update_url, urlencode($this->internal_name), urlencode(B1GMAIL_VERSION), $currentLanguage, $this->version);
-    $tpl->assign('updateURL', htmlspecialchars($queryURL));
+    //$queryURL = sprintf('%s?action=getLatestVersion&internalName=%s&b1gMailVersion=%s&js=1&language=%s&version=%s', $this->update_url, urlencode($this->internal_name), urlencode(B1GMAIL_VERSION), $currentLanguage, $this->version);
+    //$tpl->assign('updateURL', htmlspecialchars($queryURL));
     $tpl->assign('notices', $this->getNotices());
     $tpl->assign('page', $this->_templatePath('tcbrn.admin.start.tpl'));
   }
@@ -426,7 +419,7 @@ class TCBrandPlugin extends BMPlugin {
     }
     $res = $db->Query($sql);
     $domains = array();
-    while (($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_ASSOC))) {
       $domains[] = $row;
     }
     return $domains;
