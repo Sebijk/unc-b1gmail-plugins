@@ -733,7 +733,7 @@ class TCMailEncryptionPlugin extends BMPlugin
     $res = $db->Query('SELECT id FROM {pre}tccme_plugin_queue WHERE user_id = ? AND finished != 1 LIMIT 1', $userId);
     if ($res->FetchArray() === false) {
       $mailRes = $db->Query('SELECT id FROM {pre}mails WHERE userid = ? AND id NOT IN (SELECT mail_id FROM {pre}tccme_plugin_mail WHERE user_id = ?) LIMIT 1', $userId, $userId);
-      if ($mailRes->FetchArray() !== false) {
+      if ($mailRes->FetchArray()) {
         $db->Query('INSERT INTO {pre}tccme_plugin_queue (user_id, date_added) VALUES (?, ?)', $userId, time());
       }
       $res->Free();
@@ -954,7 +954,7 @@ if (!class_exists('BMCache')) {
 
 class TCMailEncryptionPlugin_BMCache_b1gMail extends BMCache_b1gMail
 {
-  function Add($key, $obj, $expires = 0)
+  static function Add($key, $obj, $expires = 0)
   {
     if (substr($key, 0, 10) === 'parsedMsg:') {
       return (false);
@@ -966,7 +966,7 @@ class TCMailEncryptionPlugin_BMCache_b1gMail extends BMCache_b1gMail
 
 class TCMailEncryptionPlugin_BMCache_memcache extends BMCache_memcache
 {
-  function Add($key, $obj, $expires = 0)
+  static function Add($key, $obj, $expires = 0)
   {
     if (substr($key, 0, 10) === 'parsedMsg:') {
       return (false);
