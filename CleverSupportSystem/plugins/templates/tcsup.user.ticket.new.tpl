@@ -15,16 +15,16 @@
 		<tr>
 			<td class="listTableLeft">* <label for="type">{lng p="subject"}:</label></td>
 			<td class="listTableRight">
-				<input type="text" name="subject" id="subject" value="{text value=$smarty.request.subject allowEmpty=true}" style="width:350px;" />
+				<input type="text" name="subject" id="subject" value="{if isset($smarty.request.subject)}{text value=$smarty.request.subject allowEmpty=true}{/if}" style="width:350px;" />
 			</td>
 		</tr>
 		<tr>
 			<td class="listTableLeft">* {lng p="tcsup.prioritaet"}:</td>
 			<td class="listTableRight">
 				<select name="priority" id="priority">
-					<option value="1"{if $smarty.request.priority==1} selected="selected"{/if}>{lng p="prio_1"}</option>
-					<option value="0"{if !$smarty.request.priority || $smarty.request.priority==0} selected="selected"{/if}>{lng p="prio_0"}</option>
-					<option value="-1"{if $smarty.request.priority==-1} selected="selected"{/if}>{lng p="prio_-1"}</option>
+					<option value="1"{if isset($smarty.request.priority) && $smarty.request.priority==1} selected="selected"{/if}>{lng p="prio_1"}</option>
+					<option value="0"{if empty($smarty.request.priority)} selected="selected"{/if}>{lng p="prio_0"}</option>
+					<option value="-1"{if isset($smarty.request.priority) &&  $smarty.request.priority==-1} selected="selected"{/if}>{lng p="prio_-1"}</option>
 				</select>
 			</td>
 		</tr>
@@ -36,7 +36,7 @@
 		
 		<tr>
 			<td class="listTableCompose" colspan="2">
-				<textarea class="composeTextarea" name="content" id="content" style="width:100%;height:180px;">{text value=$smarty.request.content allowEmpty=true}</textarea>
+				<textarea class="composeTextarea" name="content" id="content" style="width:100%;height:180px;">{if isset($smarty.request.content)}{text value=$smarty.request.content allowEmpty=true}{/if}</textarea>
 			</td>
 		</tr>
 				
@@ -66,7 +66,7 @@
 	</table>
 </form>
 
-<script language="javascript">
+<script type="text/javascript">
 <!--
 	{if $errorStep}
 	{foreach from=$invalidFields item=field}

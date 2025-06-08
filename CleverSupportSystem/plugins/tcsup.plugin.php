@@ -18,13 +18,13 @@
  */
 class TCCleverSupport extends BMPlugin {
 
-  function TCCleverSupport() {
+  function __construct() {
     $this->name = 'CleverSupportSystem';
     $this->author = 'ThinkClever GmbH';
     $this->web = 'http://www.thinkclever.ch/';
     $this->mail = 'info@thinkclever.ch';
     $this->version = '1.3.0';
-    $this->designedfor = '7.3.0';
+    $this->designedfor = '7.4.0';
     $this->type = BMPLUGIN_DEFAULT;
 
     $this->admin_pages = true;
@@ -32,7 +32,6 @@ class TCCleverSupport extends BMPlugin {
     $this->admin_page_icon = 'tcsup_icon32.png';
 
     $this->website = 'http://my.b1gmail.com/details/66/';
-    $this->update_url = 'http://code.thinkclever.net/b1gmail/plugins/update/index.php/-' . md5(B1GMAIL_LICNR . md5(B1GMAIL_SIGNKEY)) . '-/';
   }
 
   function Install() {
@@ -69,7 +68,7 @@ class TCCleverSupport extends BMPlugin {
 
     // prefs row?
     $res = $db->Query('SELECT COUNT(*) FROM {pre}tcsup_plugin_settings');
-    list ($rowCount) = $res->FetchArray(MYSQL_NUM);
+    list ($rowCount) = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
 
     // insert prefs row
@@ -97,7 +96,7 @@ class TCCleverSupport extends BMPlugin {
   function OnDeleteUser($userId) {
     global $db;
     $res = $db->Query('SELECT id FROM {pre}tcsup_plugin_ticket_file WHERE user_id = ?', $userId);
-    while (($row = $res->FetchArray(MYSQL_NUM)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_NUM))) {
       $this->_deleteTicketContentAttachment($row[0]);
     }
     $db->Query('DELETE FROM {pre}tcsup_plugin_ticket_content WHERE ticket_id IN (SELECT id FROM {pre}tcsup_plugin_ticket WHERE user_id = ?)', $userId);
@@ -182,7 +181,7 @@ class TCCleverSupport extends BMPlugin {
       $lang_admin['text_tcsup_admin_benachrichtigung_betreff'] = $this->name . ': Admin-Benachrichtigung: Betreff';
       $lang_custom['tcsup_admin_benachrichtigung_betreff'] = 'Neuer Ticket-Kommentar';
       $lang_admin['text_tcsup_admin_benachrichtigung_text'] = $this->name . ': Admin-Benachrichtigung: Text';
-      $lang_custom['tcsup_admin_benachrichtigung_text'] = "Soeben wurde ein Ticket in Ihrem System erstellt oder ver�ndert.\n\nTicket: #%%ticket_id%%\nBetreff: %%subject%%\n%%content%%\n\nDetails: %%link%%";
+      $lang_custom['tcsup_admin_benachrichtigung_text'] = "Soeben wurde ein Ticket in Ihrem System erstellt oder verändert.\n\nTicket: #%%ticket_id%%\nBetreff: %%subject%%\n%%content%%\n\nDetails: %%link%%";
       if(function_exists('CharsetDecode')) {
         $lang_custom['tcsup_admin_benachrichtigung_text'] = CharsetDecode($lang_custom['tcsup_admin_benachrichtigung_text'], 'iso-8859-1');
       }
@@ -312,7 +311,7 @@ class TCCleverSupport extends BMPlugin {
   function AdminHandler() {
     global $tpl, $lang_admin, $bm_prefs;
 
-    $tpl->register_function('tcsup_categoryOptions', 'TCSUPCategoryOptions');
+    $tpl->registerPlugin('function','tcsup_categoryOptions', 'TCSUPCategoryOptions');
 
     if (!isset($_REQUEST['action']))
       $_REQUEST['action'] = 'start';
@@ -358,7 +357,7 @@ class TCCleverSupport extends BMPlugin {
   function getNotices() {
     global $lang_admin, $db;
     $res = $db->Query('SELECT COUNT(DISTINCT ticket_id) FROM {pre}tcsup_plugin_ticket_content WHERE unread_admin = ?', true);
-    list ($ticketsUnread) = $res->FetchArray(MYSQL_NUM);
+    list ($ticketsUnread) = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
     if ($ticketsUnread > 1) {
       return array(
@@ -384,27 +383,27 @@ class TCCleverSupport extends BMPlugin {
     global $currentLanguage, $tpl, $db;
     /* @var $db DB */
     $res = $db->Query('SELECT COUNT(*) FROM {pre}tcsup_plugin_ticket WHERE status = ?', '01offen');
-    list ($ticketsOpen) = $res->FetchArray(MYSQL_NUM);
+    list ($ticketsOpen) = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
     $tpl->assign('tcsup_ticketsOpen', $ticketsOpen);
 
     $res = $db->Query('SELECT COUNT(DISTINCT ticket_id) FROM {pre}tcsup_plugin_ticket_content WHERE unread_admin = ?', true);
-    list ($ticketsUnread) = $res->FetchArray(MYSQL_NUM);
+    list ($ticketsUnread) = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
     $tpl->assign('tcsup_ticketsUnread', $ticketsUnread);
 
     $res = $db->Query('SELECT COUNT(*) FROM {pre}tcsup_plugin_kbcategory');
-    list ($kbCategories) = $res->FetchArray(MYSQL_NUM);
+    list ($kbCategories) = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
     $tpl->assign('tcsup_kbCategories', $kbCategories);
 
     $res = $db->Query('SELECT COUNT(*) FROM {pre}tcsup_plugin_kbarticle');
-    list ($kbArticles) = $res->FetchArray(MYSQL_NUM);
+    list ($kbArticles) = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
     $tpl->assign('tcsup_kbArticles', $kbArticles);
 
     $res = $db->Query('SELECT COUNT(*), SUM(positive) FROM {pre}tcsup_plugin_kbrating');
-    list ($kbRatings, $kbRatingsPositive) = $res->FetchArray(MYSQL_NUM);
+    list ($kbRatings, $kbRatingsPositive) = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
     $tpl->assign('tcsup_kbRatings', (int)$kbRatings);
     $tpl->assign('tcsup_kbRatingsPositive', (int)$kbRatingsPositive);
@@ -463,7 +462,7 @@ class TCCleverSupport extends BMPlugin {
             '_adminDeleteCategory'));
         } elseif (is_numeric($_REQUEST['massAction'])) {
           $res = $db->Query('SELECT `language` FROM {pre}tcsup_plugin_kbcategory WHERE id = ?', $_REQUEST['massAction']);
-          list ($lang) = $res->FetchArray(MYSQL_NUM);
+          list ($lang) = $res->FetchArray(MYSQLI_NUM);
           $db->Query('UPDATE {pre}tcsup_plugin_kbcategory SET `language` = ?, parent = ? WHERE id IN (' . $list . ')', $lang, $_REQUEST['massAction']);
           //exit;
         } else {
@@ -485,7 +484,7 @@ class TCCleverSupport extends BMPlugin {
         }
         if (is_numeric($_REQUEST['parent'])) {
           $res = $db->Query('SELECT `language`, id FROM {pre}tcsup_plugin_kbcategory WHERE id = ?', $_REQUEST['parent']);
-          list ($lang, $parent) = $res->FetchArray(MYSQL_NUM);
+          list ($lang, $parent) = $res->FetchArray(MYSQLI_NUM);
         } else {
           $lang = $_REQUEST['parent'];
           $parent = null;
@@ -506,7 +505,7 @@ class TCCleverSupport extends BMPlugin {
         }
         if (is_numeric($_REQUEST['parent'])) {
           $res = $db->Query('SELECT `language`, id FROM {pre}tcsup_plugin_kbcategory WHERE id = ?', $_REQUEST['parent']);
-          list ($lang, $parent) = $res->FetchArray(MYSQL_NUM);
+          list ($lang, $parent) = $res->FetchArray(MYSQLI_NUM);
         } else {
           $lang = $_REQUEST['parent'];
           $parent = null;
@@ -536,7 +535,7 @@ class TCCleverSupport extends BMPlugin {
             header('Location: ' . $this->_adminLink(true) . '&action=knowledgebase');
             exit;
           }
-          list($id) = $res->FetchArray(MYSQL_NUM);
+          list($id) = $res->FetchArray(MYSQLI_NUM);
           $_REQUEST['parent'] = $id;
         }
         $db->Query('INSERT INTO {pre}tcsup_plugin_kbarticle (`title`, `body`, `short_body`, `kbcategory_id`, `date`) VALUES (?, ?, ?, ?, ?)', $_REQUEST['title'], $_REQUEST['body'], $_REQUEST['short_body'], $_REQUEST['parent'], time());
@@ -579,9 +578,9 @@ class TCCleverSupport extends BMPlugin {
         header('Location: ' . $this->_adminLink(true) . '&action=knowledgebase');
         exit;
       }
-      list ($lang) = $res->FetchArray(MYSQL_NUM);
+      list ($lang) = $res->FetchArray(MYSQLI_NUM);
       $res = $db->Query('SELECT * FROM {pre}faq WHERE lang = ? OR lang = ? AND typ = ? OR typ = ?', $lang, ':all:', 'li', 'both');
-      while(($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+      while(($row = $res->FetchArray(MYSQLI_ASSOC))) {
         $db->Query('INSERT INTO {pre}tcsup_plugin_kbarticle (`title`, `body`, `short_body`, `kbcategory_id`, `date`) VALUES (?, ?, ?, ?, ?)', $row['frage'], $row['antwort'], '', $_REQUEST['id'], time());
       }
       header('Location: ' . $this->_adminLink(true) . '&action=knowledgebase&category=' . $_REQUEST['id']);
@@ -623,7 +622,7 @@ class TCCleverSupport extends BMPlugin {
     $sql .= 'LIMIT ' . (int) $_GET['start'] . ',' . ($config['eintraege_pro_seite'] + 1);
     $res = $db->Query($sql);
     $articles = array();
-    while(($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+    while(($row = $res->FetchArray(MYSQLI_ASSOC))) {
       $articles[] = $this->_addRatingsToRow($row);
     }
     $this->_loadCategoryDropdown();
@@ -671,7 +670,7 @@ class TCCleverSupport extends BMPlugin {
     $db->Query('DELETE FROM {pre}tcsup_plugin_kbrating WHERE `kbarticle_id` IN (SELECT id FROM {pre}tcsup_plugin_kbarticle WHERE kbcategory_id = ?)', $category);
     $db->Query('DELETE FROM {pre}tcsup_plugin_kbarticle WHERE kbcategory_id = ?', $category);
     $res = $db->Query('SELECT id FROM {pre}tcsup_plugin_kbcategory WHERE parent = ?', $category);
-    while (($row = $res->FetchArray(MYSQL_NUM)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_NUM))) {
       $this->_adminDeleteCategory($row[0]);
     }
     $res->Free();
@@ -719,7 +718,7 @@ class TCCleverSupport extends BMPlugin {
         $db->Query('UPDATE {pre}tcsup_plugin_ticket SET priority = ? WHERE id IN (' . $list . ')', $action);
       } elseif ($action == 'delete') {
         $res = $db->Query('SELECT id FROM {pre}tcsup_plugin_ticket_file WHERE ticket_content_id IN (SELECT id FROM {pre}tcsup_plugin_ticket_content WHERE ticket_id IN (' . $list . '))');
-        while (($row = $res->FetchArray(MYSQL_NUM)) !== false) {
+        while (($row = $res->FetchArray(MYSQLI_NUM))) {
           $this->_deleteTicketContentAttachment($row[0]);
         }
         $db->Query('DELETE FROM {pre}tcsup_plugin_ticket WHERE id IN (' . $list . ')');
@@ -773,7 +772,7 @@ class TCCleverSupport extends BMPlugin {
         header('Location: ' . $this->_adminLink(true) . '&action=tickets');
         exit();
       }
-      list ($ticketId) = $res->FetchArray(MYSQL_NUM);
+      list ($ticketId) = $res->FetchArray(MYSQLI_NUM);
       $res->Free();
       $db->Query('DELETE FROM {pre}tcsup_plugin_ticket_content WHERE id = ?', $_REQUEST['comment']);
       header('Location: ' . $this->_adminLink(true) . '&action=tickets&do=details&ticket=' . $ticketId);
@@ -808,7 +807,7 @@ class TCCleverSupport extends BMPlugin {
       $res->Free();
       return false;
     }
-    $row = $res->FetchArray(MYSQL_ASSOC);
+    $row = $res->FetchArray(MYSQLI_ASSOC);
     if($userId !== null && $userId != $row['user_id']) {
       $res->Free();
       return false;
@@ -838,7 +837,7 @@ class TCCleverSupport extends BMPlugin {
     $q = '\'%' . $db->Escape($query) . '%\'';
     $thisResults = array();
     $res = $db->Query('SELECT id, title FROM {pre}tcsup_plugin_kbarticle WHERE title LIKE ' . $q . ' OR body LIKE ' . $q . ' ORDER BY title ASC');
-    while (($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_ASSOC))) {
       $thisResults[] = array('icon' => 'ico_ok',
         'title' => $row['title'],
         'link' => sprintf('start.php?action=support&amp;article=%d&', $row['id']));
@@ -864,7 +863,7 @@ class TCCleverSupport extends BMPlugin {
         FROM {pre}tcsup_plugin_ticket
         JOIN {pre}tcsup_plugin_ticket_content ON {pre}tcsup_plugin_ticket.id = {pre}tcsup_plugin_ticket_content.ticket_id
         WHERE {pre}tcsup_plugin_ticket_content.unread_user = ? AND {pre}tcsup_plugin_ticket.user_id = ?', true, $userRow['id']);
-      list ($ticketsUnread) = $res->FetchArray(MYSQL_NUM);
+      list ($ticketsUnread) = $res->FetchArray(MYSQLI_NUM);
       $res->Free();
       $text = $lang_user['tcsup.hilfe'];
       if($ticketsUnread > 0) {
@@ -874,6 +873,7 @@ class TCCleverSupport extends BMPlugin {
       return array(
         'supp.tab' => array(
           'icon' => '/../prefs_faq',
+          'faIcon' => 'fa-life-ring',
           'link' => 'start.php?action=support&sid=',
           'text' => $text,
           'order' => 999));
@@ -1017,7 +1017,7 @@ class TCCleverSupport extends BMPlugin {
       $res->Free();
       $this->_redirectUser();
     }
-       $fileInfo = $res->FetchArray(MYSQL_ASSOC);
+       $fileInfo = $res->FetchArray(MYSQLI_ASSOC);
        if($userId != null && $userId != $fileInfo['user_id']) {
       $res->Free();
       $this->_redirectUser();
@@ -1138,13 +1138,13 @@ class TCCleverSupport extends BMPlugin {
     if (!$res->RowCount()) {
       return null;
     }
-    $ticket = $res->FetchArray(MYSQL_ASSOC);
+    $ticket = $res->FetchArray(MYSQLI_ASSOC);
     $ticket['ticket_number'] = $this->_formatTicketNumber($ticket);
     $res->Free();
 
     $res = $db->Query('SELECT * FROM {pre}tcsup_plugin_ticket_content WHERE ticket_id = ? ORDER BY date DESC', $ticketId);
     $contents = $list = array();
-    while (($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_ASSOC))) {
       $list[] = $db->Escape($row['id']);
       $contents[] = $row;
     }
@@ -1153,7 +1153,7 @@ class TCCleverSupport extends BMPlugin {
 
     $res = $db->Query('SELECT * FROM {pre}tcsup_plugin_ticket_file WHERE ticket_content_id IN (' . $list . ') ORDER BY dateiname ASC');
     $files = array();
-    while (($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_ASSOC))) {
       if(!isset($files[$row['ticket_content_id']])) {
         $files[$row['ticket_content_id']] = array();
       }
@@ -1211,7 +1211,7 @@ class TCCleverSupport extends BMPlugin {
     $q .= ' LIMIT ' . (int) $_GET['start'] . ',' . ($config['eintraege_pro_seite'] + 1);
     $res = $db->Query($q);
     $tickets = array();
-    while (($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_ASSOC))) {
       $row['ticket_number'] = $this->_formatTicketNumber($row);
       $tickets[] = $row;
     }
@@ -1415,7 +1415,7 @@ class TCCleverSupport extends BMPlugin {
   function _getRating($articleId) {
     global $db;
     $res = $db->Query('SELECT COUNT(*), SUM(positive) FROM {pre}tcsup_plugin_kbrating WHERE kbarticle_id = ?', $articleId);
-    list ($total, $positive) = $res->FetchArray(MYSQL_NUM);
+    list ($total, $positive) = $res->FetchArray(MYSQLI_NUM);
     if ($total != 0) {
       $happy = round(100 / $total * $positive);
       $unhappy = 100 - $happy;
@@ -1464,7 +1464,7 @@ class TCCleverSupport extends BMPlugin {
     $res = $db->Query('SELECT `id`, `name`, `parent`, `language` FROM {pre}tcsup_plugin_kbcategory ORDER BY `language` ASC, `name` ASC');
     $categories = array();
     $languages = GetAvailableLanguages();
-    while (($row = $res->FetchArray(MYSQL_ASSOC)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_ASSOC))) {
       $categories[] = $row;
     }
     $dropdown = array();
@@ -1560,7 +1560,7 @@ class TCCleverSupport extends BMPlugin {
     }
     $res = $db->Query($sql);
     $articles = array();
-    while (($row = $res->FetchArray()) !== false) {
+    while (($row = $res->FetchArray())) {
       $articles[] = $this->_addRatingsToRow($row);
     }
     $tpl->assign('tcsup_' . $name, $articles);
@@ -1572,7 +1572,7 @@ class TCCleverSupport extends BMPlugin {
     $condition = '(parent IS NULL OR parent = 0)';
     $res = $db->Query('SELECT id, name, description FROM {pre}tcsup_plugin_kbcategory WHERE ' . $condition . ' AND `language` = ? ORDER BY name ASC', $currentLanguage);
     $cats = array();
-    while (($row = $res->FetchArray()) !== false) {
+    while (($row = $res->FetchArray())) {
       $row['count'] = $this->_countArticles($row['id']);
       $cats[] = $row;
     }
@@ -1602,7 +1602,7 @@ class TCCleverSupport extends BMPlugin {
     }
     $res = $db->Query('SELECT id, name, description, `language` FROM {pre}tcsup_plugin_kbcategory WHERE ' . $condition . ' ORDER BY `language` ASC, ' . $sortBy . ' ' . $sortOrder);
     $cats = array();
-    while (($row = $res->FetchArray()) !== false) {
+    while (($row = $res->FetchArray())) {
       $row['count'] = $this->_countArticles($row['id']);
       $cats[] = $row;
     }
@@ -1613,14 +1613,14 @@ class TCCleverSupport extends BMPlugin {
   function _countArticles($category) {
     global $db;
     $res = $db->Query('SELECT COUNT(*) FROM {pre}tcsup_plugin_kbarticle WHERE kbcategory_id = ?', $category);
-    $row = $res->FetchArray(MYSQL_NUM);
+    $row = $res->FetchArray(MYSQLI_NUM);
     $res->Free();
     if (empty($row)) {
       return 0;
     }
     $count = $row[0];
     $res = $db->Query('SELECT id FROM {pre}tcsup_plugin_kbcategory WHERE parent = ?', $category);
-    while (($row = $res->FetchArray(MYSQL_NUM)) !== false) {
+    while (($row = $res->FetchArray(MYSQLI_NUM))) {
       $count += $this->_countArticles($row[0]);
     }
     return $count;

@@ -15,7 +15,7 @@
 	</tr>
 	<tr>
 		<td class="listTableRight">
-			{$content.content}
+			{if isset($content.content)}{$content.content}{/if}
 			<br />
 			<br />
 		</td>
@@ -49,7 +49,7 @@
 		
 		<tr>
 			<td class="listTableCompose" colspan="2">
-				<textarea class="composeTextarea" name="content" id="content" style="width:100%;height:180px;">{text value=$smarty.request.content allowEmpty=true}</textarea>
+				<textarea class="composeTextarea" name="content" id="content" style="width:100%;height:180px;">{if isset($smarty.request.content)}{text value=$smarty.request.content allowEmpty=true}{/if}</textarea>
 			</td>
 		</tr>
 				

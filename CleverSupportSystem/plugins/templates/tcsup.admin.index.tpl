@@ -46,4 +46,4 @@
 	</table>
 </fieldset>
 
-<script language="javascript" src="{$updateURL}"></script>
+<!--<script language="javascript" src="{$updateURL}"></script>-->
