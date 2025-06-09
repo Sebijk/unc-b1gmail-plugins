@@ -578,7 +578,8 @@ class TCMailEncryptionPlugin extends BMPlugin
       if (!openssl_pkcs7_encrypt($sourceFileName, $destinationFileName, $cert, [
         'X-EncodedBy' => $this->name . '/' . $this->version
       ])) {
-        throw new Exception(sprintf('Could not encrypt message <%d>: %s', $mailId, openssl_error_string()));
+        //throw new Exception(sprintf('Could not encrypt message <%d>: %s', $mailId, openssl_error_string()));
+        PutLog(sprintf('Could not encrypt message <%d>: %s', $mailId, openssl_error_string()));
       }
 
       // Store encrypted mail
@@ -647,7 +648,7 @@ class TCMailEncryptionPlugin extends BMPlugin
       return false;
     }
 
-    if (trim($encodingHeader) !== 'X-EncodedBy: CleverMailEncryption') {
+    if (trim($encodingHeader) != 'X-EncodedBy: CleverMailEncryption') {
       PutLog(sprintf('Message <%d> is not properly encrypted. Deleting internal reference.', $mail->id), PRIO_WARNING, __FILE__, __LINE__);
       $db->Query('DELETE FROM {pre}tccme_plugin_mail WHERE mail_id = ?', $mail->id);
       return false;
@@ -664,8 +665,17 @@ class TCMailEncryptionPlugin extends BMPlugin
       return false;
     }
 
-    // Rückgabe des Dateizeigers der entschlüsselten Datei
-    return @file_get_contents($destinationFileName) ?: false;
+    $processingTime = microtime(true) - $start;
+    if(DEBUG) {
+      PutLog(sprintf('Decrypted mail <%d> in %.04f seconds (%d bytes; throughput: %.02f KB/s)', $mail->id, $processingTime, filesize($sourceFileName), round(filesize($sourceFileName) / $processingTime / 1024, 2)),
+        PRIO_DEBUG,
+        __FILE__,
+        __LINE__);
+    }
+    
+    // Output the decrypted file 
+    return fopen($destinationFileName, 'r');;
+    /*return file_get_contents($destinationFileName);*/
   }
 
   public $_config;
@@ -694,7 +704,7 @@ class TCMailEncryptionPlugin extends BMPlugin
 
   private function _handlePrivateKeyUpload($userId)
   {
-    global $tpl;
+    global $tpl, $thisUser;
 
     if (isset($_POST['tccme_deletion_confirmed'])) {
       $this->_deleteAllMessages($userId);
@@ -954,7 +964,7 @@ if (!class_exists('BMCache')) {
 
 class TCMailEncryptionPlugin_BMCache_b1gMail extends BMCache_b1gMail
 {
-  static function Add($key, $obj, $expires = 0)
+  function Add($key, $obj, $expires = 0)
   {
     if (substr($key, 0, 10) === 'parsedMsg:') {
       return (false);
@@ -966,7 +976,7 @@ class TCMailEncryptionPlugin_BMCache_b1gMail extends BMCache_b1gMail
 
 class TCMailEncryptionPlugin_BMCache_memcache extends BMCache_memcache
 {
-  static function Add($key, $obj, $expires = 0)
+  function Add($key, $obj, $expires = 0)
   {
     if (substr($key, 0, 10) === 'parsedMsg:') {
       return (false);
