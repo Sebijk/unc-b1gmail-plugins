@@ -617,6 +617,7 @@ class TCMailEncryptionPlugin extends BMPlugin
   public function OnGetMessageFP($id, $allowOverride, &$mail)
   {
     global $db;
+    if(DEBUG) $start = microtime(true);
     if (!isset($_SESSION['tccme_privateKey'])) {
       return false;
     }
@@ -665,8 +666,8 @@ class TCMailEncryptionPlugin extends BMPlugin
       return false;
     }
 
-    $processingTime = microtime(true) - $start;
     if(DEBUG) {
+      $processingTime = microtime(true) - $start;
       PutLog(sprintf('Decrypted mail <%d> in %.04f seconds (%d bytes; throughput: %.02f KB/s)', $mail->id, $processingTime, filesize($sourceFileName), round(filesize($sourceFileName) / $processingTime / 1024, 2)),
         PRIO_DEBUG,
         __FILE__,
