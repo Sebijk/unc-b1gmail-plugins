@@ -12,7 +12,7 @@
 		<th class="listTableHead" colspan="2"> {lng p="tccme_mod2"}</th>
 	</tr>
 	<tr>
-		<td class="listTableLeft">{lng p="tccme.status"}:</td>
+		<td class="listTableLeft">{lng p="status"}:</td>
 		<td class="listTableRight">
 			{if empty($tccme_hasKey)}
 				<i class="fa fa-unlock-alt" aria-hidden="true"></i> {lng p="tccme.status_key_fehlt"}
