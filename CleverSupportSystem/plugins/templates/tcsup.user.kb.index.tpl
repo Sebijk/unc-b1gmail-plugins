@@ -48,7 +48,7 @@
 			{foreach from=$tcsup_articles item=article}
 				<li>
 					<a href="{$tcsup_url}&amp;article={$article.id}&amp;sid={$sid}">
-						<img src="{$tpldir}images/li/ico_ok.png" width="16" height="16" border="0" alt="" align="absmiddle" />&nbsp;{text value=$article.title}
+						<i class="fa fa-check" aria-hidden="true"></i>&nbsp;{text value=$article.title}
 					</a>
 					<br />
 					<span class="description">{text value=$article.short_body allowEmpty=true}</span>
@@ -74,7 +74,7 @@
 					{foreach from=$tcsup_popular item=article}
 						<li>
 							<a href="{$tcsup_url}&amp;article={$article.id}&amp;sid={$sid}">
-								<img src="{$tpldir}images/li/ico_ok.png" width="16" height="16" border="0" alt="" align="absmiddle" />&nbsp;{text value=$article.title}
+								<i class="fa fa-check" aria-hidden="true"></i>&nbsp;{text value=$article.title}
 							</a>
 						</li>
 					{/foreach}
@@ -94,7 +94,7 @@
 					{foreach from=$tcsup_new item=article}
 						<li>
 							<a href="{$tcsup_url}&amp;article={$article.id}&amp;sid={$sid}">
-								<img src="{$tpldir}images/li/ico_ok.png" width="16" height="16" border="0" alt="" align="absmiddle" />&nbsp;{text value=$article.title}
+								<i class="fa fa-check" aria-hidden="true"></i>&nbsp;{text value=$article.title}
 							</a>
 						</li>
 					{/foreach}

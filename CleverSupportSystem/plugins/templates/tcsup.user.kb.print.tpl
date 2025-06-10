@@ -15,7 +15,7 @@
 </head>
 
 <body{if !$tcsup_notPrint} onload="self.print()"{/if} style="background-color: white;">
-	<h1><img src="{$tpldir}images/li/ico_ok.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {text value=$tcsup_article.title}</h1>
+	<h1><i class="fa fa-check" aria-hidden="true"></i> {text value=$tcsup_article.title}</h1>
 	<br />
 	{$tcsup_article.body}
 </body>

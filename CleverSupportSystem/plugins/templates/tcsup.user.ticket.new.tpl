@@ -1,6 +1,11 @@
+<div id="contentHeader">
+	<div class="left">
+		<i class="fa fa-plus-circle" aria-hidden="true"></i>
+		{lng p="tcsup.neues_ticket"}
+	</div>
+</div>
 
-<h1><img src="{$tpldir}images/li/ico_add.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tcsup.neues_ticket"}</h1>
-
+<div class="scrollContainer"><div class="pad">
 {if $errorStep}
 <div class="note">
 	{$errorInfo}
@@ -51,7 +56,7 @@
 				<input type="hidden" name="attachments" value="{text value=$mail.attachments allowEmpty=true}" id="attachments" />
 				<div id="attachmentList"></div>
 				<div style="float:left">
-					<a href="javascript:addAttachment('{$sid}')"><img src="{$tpldir}images/li/ico_add.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="add"}</a>
+					<a href="javascript:addAttachment('{$sid}')"><i class="fa fa-plus-circle" aria-hidden="true" style="width: 20px;"></i> {lng p="add"}</a>
 				</div>
 			</td>
 		</tr>
@@ -84,3 +89,4 @@
   <div id="composeText"></div>
 </div>
 <script type="text/javascript">var editor = false;</script>
+</div></div>

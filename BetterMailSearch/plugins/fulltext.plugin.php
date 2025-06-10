@@ -738,9 +738,7 @@ class BetterMailSearch extends BMPlugin {
         if (empty($mailID)) {
             $mailID = $mail->id;
         }
-        if ($mail->storedIn == STORE_FILE && (!file_exists($fileName = DataFilename($mailID)) || !is_readable($fileName))) {
-            return;
-        }
+        
         $config = $this->_getConfig();
         $index = $this->_getIndex();
         $index->addMail($mail, $mailID, $config['email_groesse'] * 1024);
@@ -854,7 +852,7 @@ class TCBMS_Search_Interface {
     }
     
     /**
-     * F�gt eine Mail zum Index hinzu
+     * Fügt eine Mail zum Index hinzu
      *
      * @param BMMail $mail
      */
@@ -863,7 +861,7 @@ class TCBMS_Search_Interface {
     }
     
     /**
-     * Läscht eine Mail aus dem Index
+     * Löscht eine Mail aus dem Index
      *
      * @param BMMail $mail
      */
@@ -1027,53 +1025,53 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
     function _addTextToIndex($parts, $mailId) {
         global $db;
         $this->_setDbCharset();
-        $data = array();
+        $data = [];
+
         foreach ($parts as $part) {
-            //PutLog('Adding Part to Index...', PRIO_WARNING, __FILE__, __LINE__);
             $words = $this->_getWords($part['text']);
             foreach ($words as $word) {
                 if (empty($word)) {
                     continue;
                 }
-                
+
                 $swId = $this->_getWordId($word);
-                
-                if (isset($data[$swId])) {
-                    $data[$swId]['si_count'] += $part['score'];
-                } else {
-                    $data[$swId]['si_sw_id'] = $swId;
-                    $data[$swId]['si_mail_id'] = $mailId;
-                    $data[$swId]['si_count'] = $part['score'];
+                if (!isset($data[$swId])) {
+                    $data[$swId] = [
+                        'si_sw_id' => $swId,
+                        'si_mail_id' => $mailId,
+                        'si_count' => 0
+                    ];
                 }
+                $data[$swId]['si_count'] += $part['score'];
             }
-            //PutLog('Ok...', PRIO_WARNING, __FILE__, __LINE__);
         }
+
         if (empty($data)) {
             return;
         }
+
         $baseSql = 'INSERT INTO {pre}tcbms_plugin_search_index (si_sw_id, si_mail_id, si_count) VALUES ';
-        $first = false;
+        $sqlChunks = [];
         $counter = 0;
-        $sql = '';
+
         foreach ($data as $entry) {
-          $counter++;
-            $sql .= '(' . implode(', ', array_values($entry)) . ')';
-            if($counter % 500 == 0) {
-              $db->Query($baseSql . $sql);
-              $first = true;
-              $sql = '';
-            }
-            if (!$first) {
-                $sql .= ' ,';
-            } else {
-                $first = false;
+            $sqlChunks[] = '(' . implode(', ', array_values($entry)) . ')';
+            $counter++;
+
+            if ($counter % 500 == 0) {
+                $db->Query($baseSql . implode(',', $sqlChunks));
+                $sqlChunks = []; // Reset for the next batch
             }
         }
-        if(!empty($sql)) {
-          $db->Query($baseSql . substr($sql, 0, strlen($sql) - 2));
+
+        // Insert any remaining entries
+        if (!empty($sqlChunks)) {
+            $db->Query($baseSql . implode(',', $sqlChunks));
         }
+
         $this->_setDbCharset($this->_dbCharset);
     }
+
     
     function _getWords($text, $search = false) {
       if(empty($text)) {
@@ -1091,7 +1089,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
       } else {
         $regex .= 'a-zA-Z0-9\säÄöÖüÜàÀéÉèÈßçÇ';
       }
-      if($search && $this->_config['platzhalter_erlauben']) {
+      if($search && !empty($this->_config['platzhalter_erlauben'])) {
         $regex .= '%_';
       }
       $regex .= ']#';
@@ -1115,7 +1113,7 @@ class TCBMS_Search_MySQL extends TCBMS_Search_Interface {
         $res = $db->Query('SELECT sw_id FROM {pre}tcbms_plugin_search_word WHERE sw_word = SUBSTRING(?, 1, 32)', $word);
         $wordId = $res->FetchArray(MYSQLI_NUM);
         $res->Free();
-        if ($wordId !== false) {
+        if (!empty($wordId)) {
             $wordId = $wordId[0];
         } else {
             $db->Query('INSERT INTO {pre}tcbms_plugin_search_word (sw_word) VALUES (?)', $word);

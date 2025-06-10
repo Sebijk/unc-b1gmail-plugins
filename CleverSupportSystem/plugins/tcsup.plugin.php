@@ -23,8 +23,8 @@ class TCCleverSupport extends BMPlugin {
     $this->author = 'ThinkClever GmbH';
     $this->web = 'http://www.thinkclever.ch/';
     $this->mail = 'info@thinkclever.ch';
-    $this->version = '1.3.0';
-    $this->designedfor = '7.4.0';
+    $this->version = '1.3.1';
+    $this->designedfor = '7.3.0';
     $this->type = BMPLUGIN_DEFAULT;
 
     $this->admin_pages = true;
@@ -425,9 +425,10 @@ class TCCleverSupport extends BMPlugin {
       // sort options
       $sortBy = isset($_REQUEST['sortBy']) ? $_REQUEST['sortBy'] : 'name';
       $sortOrder = isset($_REQUEST['sortOrder']) ? strtolower($_REQUEST['sortOrder']) : 'asc';
+      $sortOrderFA = ($sortOrder=="desc")?'fa-arrow-down': 'fa-arrow-up';
       $tpl->assign('sortBy', $sortBy);
-      $tpl->assign('sortOrder', $sortOrder);
-      $tpl->assign('sortOrderInv', $sortOrder == 'asc' ? 'desc' : 'asc');
+      $tpl->assign('sortOrder', $sortOrderFA);
+      $tpl->assign('sortOrderInv', $sortOrder == 'asc' ? 'fa-arrow-down' : 'fa-arrow-up');
 
       $languages = GetAvailableLanguages();
       $tpl->assign('languages', $languages);
