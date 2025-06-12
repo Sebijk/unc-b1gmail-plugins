@@ -502,7 +502,7 @@ class TCMailEncryptionPlugin extends BMPlugin
     if (!class_exists('BMUser')) {
       require (B1GMAIL_DIR . 'serverlib/user.class.php');
     }
-
+    
     $mailLimit = round(($userLimit / $userCount) * $mailLimit);
     $totalMailsProcessed = 0;
 
@@ -511,7 +511,8 @@ class TCMailEncryptionPlugin extends BMPlugin
       $bMailbox = _new('BMMailbox', [$row['user_id'], $bUser->GetDefaultSender(), $bUser]);
 
       // Fetch mails
-      $mailRes = $db->Query('SELECT * FROM {pre}mails WHERE userid = ? AND id NOT IN (SELECT mail_id FROM {pre}tccme_plugin_mail WHERE user_id = ?) LIMIT ?', $row['user_id'], $row['user_id'], $mailLimit);
+      // do not put $mailLimit as escaped string on limit, it turns to an error.
+      $mailRes = $db->Query('SELECT * FROM {pre}mails WHERE userid = ? AND id NOT IN (SELECT mail_id FROM {pre}tccme_plugin_mail WHERE user_id = ?) LIMIT '.$mailLimit, $row['user_id'], $row['user_id']);
       $mailCounter = 0;
 
       while ($mail = $mailRes->FetchArray(MYSQLI_ASSOC)) {
@@ -742,7 +743,7 @@ class TCMailEncryptionPlugin extends BMPlugin
     global $db;
 
     $res = $db->Query('SELECT id FROM {pre}tccme_plugin_queue WHERE user_id = ? AND finished != 1 LIMIT 1', $userId);
-    if ($res->FetchArray() === false) {
+    if (empty($res->RowCount())) {
       $mailRes = $db->Query('SELECT id FROM {pre}mails WHERE userid = ? AND id NOT IN (SELECT mail_id FROM {pre}tccme_plugin_mail WHERE user_id = ?) LIMIT 1', $userId, $userId);
       if ($mailRes->FetchArray()) {
         $db->Query('INSERT INTO {pre}tccme_plugin_queue (user_id, date_added) VALUES (?, ?)', $userId, time());
