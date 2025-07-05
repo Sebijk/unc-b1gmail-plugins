@@ -117,7 +117,7 @@ function toggleGroup(id)
 						<input type="submit" class="button smallInput" name="executeMassAction" value=" {lng p="execute"} " />
 					</div>
 					<div style="float:right;padding-top:3px;">
-						<a href="{$pageURL}&amp;action=knowledgebase&amp;do=addCategory&amp;id={$tcsup_categoryDetails.id}&amp;sid={$sid}"><img src="{$tpldir_user}images/li/ico_add.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tcsup.kategorie_hinzufuegen"}</a>
+						<a href="{$pageURL}&amp;action=knowledgebase&amp;do=addCategory&amp;id={$tcsup_categoryDetails.id}&amp;sid={$sid}"><img src="{$tpldir}images/add32.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tcsup.kategorie_hinzufuegen"}</a>
 					</div>
 				</td>
 			</tr>
@@ -145,7 +145,7 @@ function toggleGroup(id)
 			{cycle name=class values="td1,td2" assign=class}
 			<tr class="{$class}">
 				<td>
-					<img src="{$tpldir_user}images/li/ico_ok.png" width="16" height="16" border="0" alt="" align="absmiddle" />
+					<img src="{$tpldir}images/extension_add.png" width="16" height="16" border="0" alt="" align="absmiddle" />
 				</td>
 				<td align="center"><input type="checkbox" name="article[]" value="{$article.id}" /></td>
 				<td>
@@ -198,7 +198,7 @@ function toggleGroup(id)
 					</div>
 					<div style="float:right;padding-top:3px;">
 						<a href="{$pageURL}&amp;action=knowledgebase&amp;do=importFaq&amp;id={$tcsup_categoryDetails.id}&amp;sid={$sid}" onclick="return confirm('{lng p='tcsup.faq_wirklich_importieren'}')"><img src="{$tpldir}images/go.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tcsup.faq_importieren"}</a>
-						<a href="{$pageURL}&amp;action=knowledgebase&amp;do=addArticle&amp;id={$tcsup_categoryDetails.id}&amp;sid={$sid}"><img src="{$tpldir_user}images/li/ico_add.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tcsup.artikel_hinzufuegen"}</a>
+						<a href="{$pageURL}&amp;action=knowledgebase&amp;do=addArticle&amp;id={$tcsup_categoryDetails.id}&amp;sid={$sid}"><img src="{$tpldir}images/add32.png" width="16" height="16" border="0" alt="" align="absmiddle" /> {lng p="tcsup.artikel_hinzufuegen"}</a>
 					</div>
 				</td>
 			</tr>

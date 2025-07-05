@@ -24,7 +24,7 @@ class TCCleverSupport extends BMPlugin {
     $this->web = 'http://www.thinkclever.ch/';
     $this->mail = 'info@thinkclever.ch';
     $this->version = '1.3.1';
-    $this->designedfor = '7.3.0';
+    $this->designedfor = '7.4.2';
     $this->type = BMPLUGIN_DEFAULT;
 
     $this->admin_pages = true;
@@ -427,8 +427,8 @@ class TCCleverSupport extends BMPlugin {
       $sortOrder = isset($_REQUEST['sortOrder']) ? strtolower($_REQUEST['sortOrder']) : 'asc';
       $sortOrderFA = ($sortOrder=="desc")?'fa-arrow-down': 'fa-arrow-up';
       $tpl->assign('sortBy', $sortBy);
-      $tpl->assign('sortOrder', $sortOrderFA);
-      $tpl->assign('sortOrderInv', $sortOrder == 'asc' ? 'fa-arrow-down' : 'fa-arrow-up');
+      $tpl->assign('sortOrder', $sortOrder);
+      $tpl->assign('sortOrderInv', $sortOrder == 'asc' ? 'desc' : 'asc');
 
       $languages = GetAvailableLanguages();
       $tpl->assign('languages', $languages);
@@ -1038,8 +1038,8 @@ class TCCleverSupport extends BMPlugin {
     if (strlen(trim($_REQUEST['attachments'])) > 3) {
       $attachments = explode(';', $_REQUEST['attachments']);
       foreach ($attachments as $attachment) {
-        if (strlen(trim($attachment)) > 3) {
-          list ($tempFileID, $fileName, $contentType) = explode(',', $attachment);
+        if (strlen(trim($attachment)) > 3 AND strpos($attachment, ',') !== false) {
+          [$tempFileID, $fileName, $contentType] = explode(',', $attachment);
           $tempFileID = (int) $tempFileID;
           if (ValidTempFile($userRow['id'], $tempFileID)) {
             if (($attSize + filesize(TempFileName($tempFileID))) <= $groupRow['anlagen']) {

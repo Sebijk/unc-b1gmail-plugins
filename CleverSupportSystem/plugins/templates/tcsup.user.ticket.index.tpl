@@ -38,7 +38,7 @@
 					{/if}
 					<tr>
 						<td class="folderGroup" colspan="5">
-							<a style="display:block;" href="javascript:toggleGroup('{$ticket.status}');">&nbsp;<img height="11" width="11" id="groupImage_{$ticket.status}" src="{$tpldir}images/contract.gif" border="0" alt="" />
+							<a style="display:block;" href="javascript:toggleGroup('{$ticket.status}');">&nbsp;<img height="11" width="11" id="groupImage_{$ticket.status}" src="{$tpldir}images/contract.png" border="0" alt="" />
 							{capture assign=ticket_status}tcsup.ticket_status_{$ticket.status}{/capture}{lng p=$ticket_status}
 							</a>
 						</td>

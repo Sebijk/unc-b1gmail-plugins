@@ -44,7 +44,7 @@ function toggleGroup(id)
 			<tr>
 				<th width="30" style="text-align:center;">
 					<a href="javascript:updateSort('unread');">
-						<img src="{$tpldir_user}images/li/ico_email.png" width="16" height="16" border="0" alt="" align="absmiddle" />
+						<img src="{$tpldir}images/ico_prefs_email.png" width="16" height="16" border="0" alt="" align="absmiddle" />
 						{if $sortColumn=='unread'}<img src="{$tpldir}images/sort_{$sortOrder}.png" border="0" alt="" width="7" height="6" align="absmiddle" />{/if}
 					</a>
 				</th>
@@ -80,7 +80,7 @@ function toggleGroup(id)
 				{/if}
 				<tr>
 					<td class="folderGroup" colspan="7">
-						<a style="display:block;" href="javascript:toggleGroup('{$ticket.status}');">&nbsp;<img height="11" width="11" id="groupImage_{$ticket.status}" src="{$tpldir}images/contract.gif" border="0" alt="" />
+						<a style="display:block;" href="javascript:toggleGroup('{$ticket.status}');">&nbsp;<img height="11" width="11" id="groupImage_{$ticket.status}" src="{$tpldir}images/contract.png" border="0" alt="" />
 						{capture assign=ticket_status}tcsup.ticket_status_{$ticket.status}{/capture}{lng p=$ticket_status}
 						</a>
 					</td>
@@ -96,7 +96,7 @@ function toggleGroup(id)
 			{assign var=ticket_status value=$ticket.status}
 			<tr class="{$class}">
 				<td style="text-align:center;">
-					{if $ticket.unread}<img src="{$tpldir_user}images/li/ico_email.png" width="16" height="16" border="0" alt="" align="absmiddle" />{else}&nbsp;{/if}
+					{if $ticket.unread}<img src="{$tpldir}images/ico_prefs_email.png" width="16" height="16" border="0" alt="" align="absmiddle" />{else}&nbsp;{/if}
 				</td>
 				<td align="center"><input type="checkbox" name="ticket[]" value="{$ticket.id}" /></td>
 				<td>{text value=$ticket.ticket_number}</td>

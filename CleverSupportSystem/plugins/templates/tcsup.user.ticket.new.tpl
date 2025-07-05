@@ -53,7 +53,7 @@
 		<tr>
 			<td class="listTableLeft">{lng p="attachments"}:</td>
 			<td class="listTableRight">
-				<input type="hidden" name="attachments" value="{text value=$mail.attachments allowEmpty=true}" id="attachments" />
+				<input type="hidden" name="attachments" value="{if isset($mail.attachments)}{text value=$mail.attachments allowEmpty=true}{/if}" id="attachments" />
 				<div id="attachmentList"></div>
 				<div style="float:left">
 					<a href="javascript:addAttachment('{$sid}')"><i class="fa fa-plus-circle" aria-hidden="true" style="width: 20px;"></i> {lng p="add"}</a>
