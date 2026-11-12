@@ -1,0 +1,117 @@
+diff --git a/CleverMailEncryption/plugins/tccme.plugin.php b/CleverMailEncryption/plugins/tccme.plugin.php
+--- a/CleverMailEncryption/plugins/tccme.plugin.php
++++ b/CleverMailEncryption/plugins/tccme.plugin.php
+@@ -574,24 +574,36 @@
+-    // Check if message is not encrypted
+-    if (!isset($bmMail->headers['X-EncodedBy']) || $bmMail->GetHeaderValue('X-EncodedBy') != 'CleverMailEncryption') {
+-      // Do encryption
+-      if (!openssl_pkcs7_encrypt($sourceFileName, $destinationFileName, $cert, [
+-        'X-EncodedBy' => $this->name . '/' . $this->version
+-      ])) {
+-        //throw new Exception(sprintf('Could not encrypt message <%d>: %s', $mailId, openssl_error_string()));
+-        PutLog(sprintf('Could not encrypt message <%d>: %s', $mailId, openssl_error_string()));
+-      }
+-
+-      // Store encrypted mail
+-      if (!BMBlobStorage::createProvider($bmMail->blobStorage, $userId)->storeBlob(BMBLOB_TYPE_MAIL, $mailId, file_get_contents($destinationFileName))) {
+-        // throw new Exception(sprintf('Could not write encrypted message <%d>. Permission denied?', $mailId));
+-        PutLog(sprintf('Could not write encrypted message <%d>. Permission denied?', $mailId), PRIO_ERROR, __FILE__, __LINE__);
+-      }
+-    } else {
+-      PutLog(sprintf('Could not encrypt <%d>. Already encrypted.', $mailId), PRIO_ERROR, __FILE__, __LINE__);
+-    }
+-
+-    $db->Query('REPLACE INTO {pre}tccme_plugin_mail (mail_id, user_id) VALUES (?, ?)', $mailId, $userId);
++    // The marker includes the plugin version; only treat our own marker as encrypted.
++    $encodedBy = isset($bmMail->headers['X-EncodedBy'])
++      ? $bmMail->GetHeaderValue('X-EncodedBy')
++      : '';
++    if (is_string($encodedBy) && preg_match('/^CleverMailEncryption(?:\/|$)/i', trim($encodedBy))) {
++      return true;
++    }
++
++    if (!is_file($sourceFileName) || !is_readable($sourceFileName)
++      || !openssl_pkcs7_encrypt($sourceFileName, $destinationFileName, $cert, [
++        'X-EncodedBy' => $this->name . '/' . $this->version
++      ])) {
++      PutLog(sprintf('Could not encrypt message <%d>: %s', $mailId, openssl_error_string()), PRIO_ERROR, __FILE__, __LINE__);
++      return false;
++    }
++
++    $encryptedMessage = @file_get_contents($destinationFileName);
++    if ($encryptedMessage === false
++      || !BMBlobStorage::createProvider($bmMail->blobStorage, $userId)->storeBlob(BMBLOB_TYPE_MAIL, $mailId, $encryptedMessage)) {
++      PutLog(sprintf('Could not write encrypted message <%d>. Permission denied?', $mailId), PRIO_ERROR, __FILE__, __LINE__);
++      return false;
++    }
++
++    $db->Query('REPLACE INTO {pre}tccme_plugin_mail (mail_id, user_id) VALUES (?, ?)', $mailId, $userId);
+@@ -611,6 +623,27 @@
+   }
+ 
++  /**
++   * Check the outer MIME headers written by openssl_pkcs7_encrypt().
++   * The value contains the plugin version, so comparing it to the bare plugin
++   * name (or comparing a fixed number of bytes) is not reliable.
++   */
++  private function _hasEncryptionMarker($fileName)
++  {
++    if (!is_file($fileName) || !is_readable($fileName) || ($fp = fopen($fileName, 'rb')) === false) {
++      return false;
++    }
++
++    $found = false;
++    while (($line = fgets($fp)) !== false && trim($line) !== '') {
++      if (preg_match('/^X-EncodedBy:\s*(CleverMailEncryption(?:\/[^\r\n]*)?)\s*$/i', rtrim($line, "\r\n"), $matches)) {
++        $found = true;
++        break;
++      }
++    }
++    fclose($fp);
++    return $found;
++  }
++
+   /**
+    * @param int $id
+@@ -628,6 +661,9 @@
+-    $privateKey = openssl_get_privatekey($_SESSION['tccme_privateKey']);
+     $userId = $mail->_userID;
+-    $cert = openssl_x509_read($this->_getCert($userId));
++    $privateKey = openssl_pkey_get_private($_SESSION['tccme_privateKey']);
++    $certificate = $this->_getCert($userId);
++    $cert = $certificate ? openssl_x509_read($certificate) : false;
++    if (!$privateKey || !$cert) {
++      PutLog(sprintf('Could not load decryption credentials for message <%d>.', $mail->id), PRIO_ERROR, __FILE__, __LINE__);
++      return false;
++    }
+@@ -644,14 +680,9 @@
+-    // Check if file can be opened
+-    $encodingHeader = @file_get_contents($sourceFileName, false, null, 0, 33);
+-    if ($encodingHeader === false) {
+-      PutLog(sprintf("Message <%d> can't be read or is empty", $mail->id), PRIO_WARNING, __FILE__, __LINE__);
+-      return false;
+-    }
+-
+-    if (trim($encodingHeader) != 'X-EncodedBy: CleverMailEncryption') {
++    if (!$this->_hasEncryptionMarker($sourceFileName)) {
+       PutLog(sprintf('Message <%d> is not properly encrypted. Deleting internal reference.', $mail->id), PRIO_WARNING, __FILE__, __LINE__);
+       $db->Query('DELETE FROM {pre}tccme_plugin_mail WHERE mail_id = ?', $mail->id);
+       return false;
+@@ -666,6 +697,9 @@
+       return false;
+     }
++
++    $GLOBALS['tempFilesToReleaseAtShutdown'][] = [$userId, $destinationFileID];
++    $decryptedFP = @fopen($destinationFileName, 'rb');
++    return $decryptedFP !== false ? $decryptedFP : false;
+@@ -679,7 +713,6 @@
+-    return fopen($destinationFileName, 'r');;
+-    /*return file_get_contents($destinationFileName);*/
+   }
+@@ -364,9 +364,9 @@
+-    if (is_a($cacheManager, 'BMCache_b1gMail')) {
++    if ($cacheManager instanceof BMCache_b1gMail) {
+       $cacheManager = new TCMailEncryptionPlugin_BMCache_b1gMail();
+-    } elseif (is_a($cacheManager, 'BMCache_memcache')) {
++    } elseif ($cacheManager instanceof BMCache_memcache) {
+       $cacheManager = new TCMailEncryptionPlugin_BMCache_memcache();
